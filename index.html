@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+ <?php 
+    $icon = "image/logo.png";
+	$link_stylesheet = array('layui/css/layui.css','style/blog.css');
+	$lgq_title = "李国强博客";
+    include "head.php";
+	include "class/autoload.php";
+ ?>
+ <body>
+  <div class="lgq_blog">
+
+     <div class="logo_title">
+	   
+	   <span>
+	     <a href="about"><i class="layui-icon layui-icon-star"></i>关于我</a>
+		 <a href="guestbook"><i class="layui-icon layui-icon-form"></i>留言板</a>
+		 <?php
+		 session_start();
+		 if(@$_SESSION['name']){
+		 echo "<a>{$_SESSION['name']}</a>";
+		 }else{
+		 ?>
+		 <a href="Login" style="margin:0;">登录</a>/<a href="Login?register=true">注册</a>
+		 <?php }?>
+		 
+	   </span>
+	   
+	   <img src="image/lgq.png" id="logo1">
+	   
+	 </div>
+
+	 <div class="fader" >
+	   <!--<video src="video/2-short.mp4" loop muted autoplay="autoplay" style="object-fit: fill"></video>-->
+	   <div class="layui-carousel" id="test1">
+          <div carousel-item id="img"></div>
+       </div>
+	 </div>
+
+
+
+	 <div class="primary_coverage">
+	    <div class="left">
+		<h1><i class="layui-icon layui-icon-read"></i>文章推荐</h1>
+		<ul> 
+
+		<?php
+          $row = $lgq_boke->selects('wz limit 6');
+          foreach($row as $k=>$v){
+		?>
+		  <li>
+		   <h3><span><?php echo $v['f_name'];?></span><?php echo $v['title'];?></h3>
+		   <div class="bloginfo">
+		     <div class="img"><img src="image/bgs.png"></div>
+			 <div class="content"><?php echo $v['shouNr'];?></div>
+			 
+		   </div>
+		   <div class="time_browse">
+		      <span><i class="layui-icon layui-icon-friends"></i><?php echo $v['name'];?></span>
+			  <span><i class="layui-icon layui-icon-log"></i><?php echo $v['time'];?></span>
+			  <span><i class="layui-icon layui-icon-face-smile-b"></i><?php echo $v['dianji'];?></span>
+			  <a href="viewarticle?id=<?php echo $v['id'];?>" target="_blank">阅读原文</a>
+		   </div>
+		  </li>
+		 <?php }?>
+
+		</ul>
+		</div>
+		<div class="right">
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-search"></i>站内搜索</h1>
+                <div class="search">
+				 <form action="search" method="get" onsubmit="return soushuo()">
+				  <input type="text" name="name" id="search" autocomplete="off" placeholder="请输入您需要的内容">
+				  <button></button>
+				 </form>
+				</div>
+		   </div>
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-flag"></i>点击排行</h1>
+				<ul>	
+				   <?php
+			       $i=0;
+			       $row = $lgq_boke->selects('wz_boke order by dianji desc limit 6');
+                   foreach($row as $k=>$v){
+				   $i++;
+				   if($i<=3){
+			       ?>
+			        <a target="_blank" href="viewarticle?id=<?php echo $v['id'];?>"><li title="点击量：<?php echo $v['dianji'];?>"><span style="background:#555;border:0.3px solid #555;"><?php echo $i;?></span><?php echo $v['title']?></li></a>
+			       <?php }else{?>
+				   <a target="_blank" href="viewarticle?id=<?php echo $v['id'];?>"><li title="点击量：<?php echo $v['dianji'];?>"><span style="color:#000;border:0.3px solid #555;"><?php echo $i;?></span><?php echo $v['title']?></li></a>
+				   <?php }}?>
+				   
+				</ul>
+		   </div>
+
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-release"></i>最新发布</h1>
+				<ul>
+				<?php
+                 $row = $lgq_boke->selects('wz_boke order by id desc limit 6');
+                 foreach($row as $k=>$v){
+			    ?>
+                  <a target="_blank" href="viewarticle?id=<?php echo $v['id'];?>"><li title="发布于<?php echo $v['time'];?>"><?php echo $v['title']?></li></a>
+				<?php }?>
+                </ul>
+		   </div>
+
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-note"></i>文章标签</h1>
+				<div class="biaoqiang">
+				<?php
+                 $row = $lgq_boke->selects('fenlei');
+                 foreach($row as $k=>$v){
+			    ?>
+			    <a target="_blank" href="bq?id=<?php echo $v['id']?>"><?php echo $v['f_name']?> (<?php echo $v['num']?>)</a>
+			    <?php }?>
+                </div>
+		   </div>
+
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-chat"></i>关注博客</h1>
+				<p style="margin:20px">
+				<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=ec5475cce2b37af5fcf1f479d9ef8a0c65eec9812b95dbb70362d441a4f52910"><img src="//pub.idqqimg.com/wpa/images/group.png"></a>
+				</p>
+		   </div>
+
+		   <div class="click_ranking">
+		        <h1><i class="layui-icon layui-icon-link"></i>友情链接</h1>
+				<div class="biaoqiang">
+				<?php
+				$yl = $lgq_boke->selects("friend_boke limit 2");
+				$youlian = $lgq_boke->selects("friend_boke");
+				foreach($yl as $v){
+				?>
+				<a target="_blank" href="<?php echo $v['href']?>"><?php echo $v['name']?></a>
+				<?php }?>
+				 <a class="genduo">更多>></a>
+                </div>
+		   </div>
+		</div>
+	 </div>
+
+	 <div class="end">
+		<div class="design" >
+		Design by：李国强
+		</div>
+	 </div>
+  </div>
+ </body>
+</html>
+
+<script src="layui/layui.js"></script>
+<script src="style/blog.js"></script>
+<script>
+
+layui.use('layer', function(){
+  var $ = layui.jquery, layer = layui.layer; 
+  var arr = <?php echo json_encode($youlian);?>;
+  $('.genduo').click(function(){
+  layer.open({
+        type: 1
+        ,title: false 
+        ,closeBtn: false
+        ,area: '600px;'
+        ,shade: 0.8
+        ,id: 'LAY_layuipro' 
+        ,btnAlign: 'c'
+        ,moveType: 1 
+		,shadeClose: true
+        ,content: '<div class="youlian"><h1><i class="layui-icon layui-icon-link"></i>友情链接</h1></div>'
+  });
+  $.each(arr, function(index,item){  
+		 $('.youlian').append("<a href='"+item.href+"' style='margin-top:10px' class='layui-btn layui-btn-normal layui-btn-sm'  target='_blank'>"+item.name+"</a>");
+  });
+  });
+});
+</script>
